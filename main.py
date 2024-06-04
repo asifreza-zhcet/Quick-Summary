@@ -8,6 +8,7 @@ import nltk
 from heapq import nlargest
 
 nltk.download("stopwords")
+nltk.download('punkt')
 
 stop = stopwords.words('english')
 
