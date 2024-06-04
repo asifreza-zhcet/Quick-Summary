@@ -6,6 +6,8 @@ from nltk.tokenize import sent_tokenize, word_tokenize
 from nltk.corpus import stopwords
 from heapq import nlargest
 
+nltk.download("stopwords")
+
 stop = stopwords.words('english')
 
 def txt_clean(x):
