@@ -1,1 +1,3 @@
 gtts
+bs4
+nltk
