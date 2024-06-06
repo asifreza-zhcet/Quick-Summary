@@ -1,42 +1,21 @@
-from bs4 import BeautifulSoup
-import requests
-import re
-from string import punctuation
+"""
+This module is used to calculate sentence score and return the summary
+"""
+
 from nltk.tokenize import sent_tokenize, word_tokenize
 from nltk.corpus import stopwords
-import nltk
 from heapq import nlargest
-
-nltk.download("stopwords")
-nltk.download('punkt')
 
 stop = stopwords.words('english')
 
-def txt_clean(x):
-    '''this function cleans the text'''
-   
-    x = re.sub('\[.*?\]','', x) #remove [] and anything in between the brackets
-    x = re.sub('\(.*?\)', '',x)
-    x = re.sub('www\S+|https?\S+', '', x) #remove links
-    x = re.sub('\<.*?\>', '', x) #remove html tags
-    x = re.sub(f'[{re.escape(punctuation)}]', '',x) #remove punctuations
-    x = re.sub('\n ','',x) #remove new line
-    x = re.sub('\\xa0', ' ',x)
-    return x
 
-def func(url, n):
-    web_page = requests.get(url).text
-    soup = BeautifulSoup(web_page, 'html.parser')
-
-    corpus = ''
-    p_tags = soup.find_all('p')
-    for p_tag in p_tags:
-        corpus += p_tag.text + ' '
-
-    original = sent_tokenize(corpus)
-    clean_sent = [txt_clean(sent) for sent in sent_tokenize(corpus)]
-
-
+def summarize(corpus, n):
+    """
+    This function first calculates the sentence score based on the frequency of the words and then
+    returns the summary based on the sentence scores
+    """
+    clean_sent = sent_tokenize(corpus)
+    # Calculating word frequency
     word_freq = {}
     for sent in clean_sent:
         for word in word_tokenize(sent):
@@ -46,16 +25,15 @@ def func(url, n):
                 except KeyError:
                     word_freq[word.lower()] = 1
 
+    # Normalizing the frequency by dividing with maximum frequency
     max_freq = max(word_freq.values())
-
     norm_freq = {}
-
     for key, value in word_freq.items():
-        norm_freq[key] = value/max_freq
+        norm_freq[key] = value / max_freq
 
+    # Calculating the sentence scores
     sent_score = {}
     score = 0
-
     for sent in clean_sent:
         for word in word_tokenize(sent):
             try:
@@ -64,9 +42,13 @@ def func(url, n):
                 pass
         sent_score[sent] = score
         score = 0
-    
-    length = int(len(clean_sent) * n)
 
-    
+    # Calculating the size (in number of lines) to be returned as summary
+    length = int(len(clean_sent) * n)
+    # If the size is 0 the default size of the summary is 1.
+    if length == 0:
+        length = 1
+
     summary = nlargest(length, iterable=sent_score, key=sent_score.get)
-    return '.'.join(summary)
+
+    return ' '.join(summary)

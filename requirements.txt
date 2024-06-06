@@ -1,3 +1,7 @@
-gtts
-bs4
-nltk
+gtts~=2.5.1
+bs4~=0.0.2
+nltk~=3.8.1
+streamlit~=1.35.0
+requests~=2.32.3
+beautifulsoup4~=4.12.3
+pypdf~=4.2.0
